@@ -24,12 +24,12 @@ from backend.routes import *
 
 # db.session.add(Customer1)
 # db.session.commit()
-# booking1 = Booking(professional_id=1 , customer_id = 1)
+# booking1 = Booking(   professional_id=1 , customer_id = 1)
 # db.session.add(booking1)
 # db.session.commit()
 
-Customer1 = db.session.query(User).filter_by(id = 1).first()
-print(Customer1.sent_booking[1].prof.name)
+# Customer1 = db.session.query(User).filter_by(id = 1).first()
+# print(Customer1.sent_booking[1].prof.name)
 
 if __name__ == "__main__":
     app.run(debug=True)
