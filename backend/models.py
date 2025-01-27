@@ -1,21 +1,23 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
 
 #Admin, Customer, sp, booking, service
 
-class Admin(db.Model ):
+class Admin(db.Model,UserMixin ):
     __tablename__ = 'admin'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String, unique=True)
     
-    
+    def get_id(self):
+        return self.email
 
 
-class Professional(db.Model):
+class Professional(db.Model,UserMixin):
     __tablename__ = 'professional'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True)
@@ -30,9 +32,13 @@ class Professional(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"))
     all_plans = db.relationship("ServicePlan", backref="professional", cascade="all, delete-orphan")
     assigned_booking = db.relationship("Booking", backref="professional", cascade="all, delete-orphan")
-    
+    def get_id(self):
+        return self.email
 
-class User(db.Model):
+
+
+
+class User(db.Model,UserMixin):
     __tablename__ = "customer"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True)
@@ -43,7 +49,8 @@ class User(db.Model):
     phone = db.Column(db.String)
     status=db.Column(db.String)
     sent_booking = db.relationship("Booking", backref="customer")
-   
+    def get_id(self):
+            return self.email
 
 
 class ServiceCategory(db.Model):

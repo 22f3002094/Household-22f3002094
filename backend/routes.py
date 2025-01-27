@@ -1,6 +1,6 @@
 from flask import current_app as app
-
-from flask import render_template,request,redirect
+from flask_login import login_user,current_user,login_required,logout_user
+from flask import render_template,request,redirect,flash
 
 from backend.models import db,User,Professional,ServiceCategory,Admin
 
@@ -53,28 +53,42 @@ def login():
         return render_template("login.html")
     elif request.method == "POST":
         Email = request.form.get("user_email")
+        
         pwd=request.form.get("user_password")
 
         person =  db.session.query(User).filter_by(email=Email).first() or \
               db.session.query(Professional).filter_by(email=Email).first() or  \
                 db.session.query(Admin).filter_by(email=Email).first()
         
-        if person and person.password == pwd :
-            if isinstance(person,User):
-                return redirect("/customer/dashboard")
-            elif isinstance(person,Admin):
-                return redirect("/admin/dashboard")
-            elif isinstance(person,Professional):
-                return redirect("/professional/dashboard")
+        if person :
+            if person.password == pwd:
+                if isinstance(person,User):
+                    login_user(person)
+                    return redirect(f"/customer/dashboard")
+                elif isinstance(person,Admin):
+                    login_user(person)
+                    return redirect("/admin/dashboard")
+                elif isinstance(person,Professional):
+                    login_user(person)
+                    return redirect("/professional/dashboard")
+                else:
+                    return redirect("/login")
+            
+            else:
+                flash("Wrong password,try again!!")
+                flash("xyz")
+                return redirect("/login")
         else:
             return redirect("/")
         
 
 
 @app.route("/customer/dashboard", methods=["GET","POST"])
+@login_required
 def cust_dash():
     if request.method=="GET":
-        return render_template("/customer/dashboard.html")
+        
+        return render_template("/customer/dashboard.html",u=current_user)
     
 @app.route("/admin/dashboard", methods=["GET","POST"])
 def admin_dash():
@@ -86,3 +100,10 @@ def admin_dash():
 def pro_dash():
     if request.method=="GET":
         return render_template("/professional/dashboard.html")
+    
+
+@app.route("/logout",methods=["GET"])
+@login_required
+def logout():
+    logout_user()
+    return redirect("/login")

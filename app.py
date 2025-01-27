@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_login import LoginManager
 from backend.models import db,User,ServiceCategory,Booking
 import os
 
@@ -7,6 +8,15 @@ app = None
 def initial_Setup():
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:///my_app_db.sqlite3"
+    app.config["SECRET_KEY"] = "xyshhfjf"
+    login_manager = LoginManager(app)
+    @login_manager.user_loader
+    def load_user(user_email):
+        return db.session.query(User).filter_by(email = user_email).first() or \
+              db.session.query(Admin).filter_by(id = user_email).first() or \
+              db.session.query(Professional).filter_by(id = user_email).first()
+
+
     db.init_app(app)
     with app.app_context():
         if not os.path.exists("my_app_db.sqlite3"):
