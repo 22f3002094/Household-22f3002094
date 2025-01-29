@@ -64,7 +64,7 @@ def login():
             if person.password == pwd:
                 if isinstance(person,User):
                     login_user(person)
-                    return redirect(f"/customer/dashboard")
+                    return redirect("/customer/dashboard")
                 elif isinstance(person,Admin):
                     login_user(person)
                     return redirect("/admin/dashboard")
@@ -91,9 +91,13 @@ def cust_dash():
         return render_template("/customer/dashboard.html",u=current_user)
     
 @app.route("/admin/dashboard", methods=["GET","POST"])
+@login_required
 def admin_dash():
     if request.method=="GET":
-        return render_template("/admin/dashboard.html")
+        categories = db.session.query(ServiceCategory).all()
+        professionals = db.session.query(Professional).all()
+        customers= db.session.query(User).all()
+        return render_template("/admin/dashboard.html",categories=categories,professionals=professionals,customers=customers)
     
 
 @app.route("/professional/dashboard", methods=["GET","POST"])

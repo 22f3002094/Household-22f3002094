@@ -12,9 +12,9 @@ def initial_Setup():
     login_manager = LoginManager(app)
     @login_manager.user_loader
     def load_user(user_email):
-        return db.session.query(User).filter_by(email = user_email).first() or \
-              db.session.query(Admin).filter_by(id = user_email).first() or \
-              db.session.query(Professional).filter_by(id = user_email).first()
+        return db.session.query(Admin).filter_by(email = user_email).first()  or \
+             db.session.query(User).filter_by(email = user_email).first() or \
+              db.session.query(Professional).filter_by(email = user_email).first()
 
 
     db.init_app(app)
