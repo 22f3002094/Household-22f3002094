@@ -95,10 +95,47 @@ def cust_dash():
 def admin_dash():
     if request.method=="GET":
         categories = db.session.query(ServiceCategory).all()
-        professionals = db.session.query(Professional).all()
-        customers= db.session.query(User).all()
-        return render_template("/admin/dashboard.html",categories=categories,professionals=professionals,customers=customers)
-    
+        A_p = db.session.query(Professional).filter_by(status = "Active").all()
+        R_p = db.session.query(Professional).filter_by(status = "Requested").all()
+        F_p = db.session.query(Professional).filter_by(status = "Flagged").all()
+        A_c = db.session.query(User).filter_by(status = "Active").all()
+        F_c = db.session.query(Professional).filter_by(status = "Flagged").all()
+        return render_template("/admin/dashboard.html",categories=categories,A_p = A_p,R_p=R_p,F_p=F_p,A_c=A_c,F_c=F_c,page="home")
+    elif request.method=="POST":
+        if request.args.get("action")=="create":
+            cat_name= request.form.get("cat_name")
+            cat_price=request.form.get("cat_price")
+            # cat_desc=request.form.get("cat_desc")
+            check_cat =db.session.query(ServiceCategory).filter_by(name =cat_name).first()
+            if not check_cat:
+                cat = ServiceCategory(name=cat_name,base_price=cat_price)
+                db.session.add(cat)
+                db.session.commit()
+                return redirect("/admin/dashboard")
+            else:
+                flash("a catefory with the same name is present") 
+                return redirect("/admin/dashboard")
+        
+        elif request.args.get("action")=="edit": 
+
+            id= request.args.get("id")
+            cat_change_name =request.form.get("cat_change_name")
+            cat_change_price=request.form.get("cat_change_price")
+            cat= db.session.query(ServiceCategory).filter_by(id = id).first()
+            if cat_change_name:
+                cat.name = cat_change_name
+            elif cat_change_price:
+                cat.base_price = cat_change_price
+            db.session.commit()
+
+            return redirect("/admin/dashboard")  
+
+
+@app.route("/admin/search", methods=["GET","POST"])
+@login_required
+def admin_search():
+    if request.method=="GET":
+        return render_template("admin/search.html",page="search" )
 
 @app.route("/professional/dashboard", methods=["GET","POST"])
 def pro_dash():
