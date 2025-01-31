@@ -99,7 +99,7 @@ def admin_dash():
         R_p = db.session.query(Professional).filter_by(status = "Requested").all()
         F_p = db.session.query(Professional).filter_by(status = "Flagged").all()
         A_c = db.session.query(User).filter_by(status = "Active").all()
-        F_c = db.session.query(Professional).filter_by(status = "Flagged").all()
+        F_c = db.session.query(User).filter_by(status = "Flagged").all()
         return render_template("/admin/dashboard.html",categories=categories,A_p = A_p,R_p=R_p,F_p=F_p,A_c=A_c,F_c=F_c,page="home")
     elif request.method=="POST":
         if request.args.get("action")=="create":
@@ -128,7 +128,51 @@ def admin_dash():
                 cat.base_price = cat_change_price
             db.session.commit()
 
-            return redirect("/admin/dashboard")  
+            return redirect("/admin/dashboard") 
+        elif request.args.get("action") == "reject":
+            id = request.args.get("id")
+            sp = db.session.query(Professional).filter_by(id = id).first()
+            sp.status = "Rejected"
+            db.session.commit()
+            flash(f"{sp.name}'s request is rejected")
+            return redirect("/admin/dashboard")
+        elif request.args.get("action") == "accept":
+            id = request.args.get("id")
+            sp = db.session.query(Professional).filter_by(id = id).first()
+            sp.status = "Active"
+            db.session.commit()
+            flash(f"{sp.name}'s request is Accepted")
+            return redirect("/admin/dashboard")
+        elif request.args.get("action") == "flag":
+            id = request.args.get("id")
+            if request.args.get("utype") =="professional":
+                sp = db.session.query(Professional).filter_by(id = id).first()
+                sp.status = "Flagged"
+                db.session.commit()
+                flash(f"{sp.name}'s is Flagged")
+                return redirect("/admin/dashboard")
+            elif request.args.get("utype")=="customer":
+                cust = db.session.query(User).filter_by(id = id).first()
+                cust.status = "Flagged"
+                db.session.commit()
+                flash(f"{cust.name}'s is Flagged")
+                return redirect("/admin/dashboard")
+
+        elif request.args.get("action") == "unflag":
+
+            id = request.args.get("id")
+            if request.args.get("utype")=="professional":
+                sp = db.session.query(Professional).filter_by(id = id).first()
+                sp.status = "Active"
+                db.session.commit()
+                flash(f"{sp.name}'s is Unflagged")
+                return redirect("/admin/dashboard")
+            elif request.args.get("utype")=="customer":
+                cust = db.session.query(User).filter_by(id = id).first()
+                cust.status = "Active"
+                db.session.commit()
+                flash(f"{cust.name}'s is Unflagged")
+                return redirect("/admin/dashboard")
 
 
 @app.route("/admin/search", methods=["GET","POST"])

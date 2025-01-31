@@ -1,6 +1,17 @@
 {% extends "admin/base.html"%}
 {% block content %}
 <main>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+
+    {% for m in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{m}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <h1>Welcome Admin</h1>
     <div class="card shadow-lg ms-5 me-5 mt-5">
         <div class="card-header">
@@ -29,17 +40,16 @@
                                     <div>
                                         <form action="/admin/dashboard?action=create" method="POST">
                                             <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" name="cat_name" id="floatingInput">
+                                                <input type="text" class="form-control" name="cat_name"
+                                                    id="floatingInput" required>
                                                 <label for="floatingInput"> Category name</label>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input type="number" class="form-control" name="cat_price" id="floatingPassword">
+                                                <input type="number" class="form-control" name="cat_price"
+                                                    id="floatingPassword" required>
                                                 <label for="floatingPassword">Base Price</label>
                                             </div>
-                                            <div class="form-floating">
-                                                <input type="text" class="form-control" name="cat_desc" id="floatingPassword">
-                                                <label for="floatingPassword">Description</label>
-                                            </div>
+
                                             <div class="mt-3 text-center">
                                                 <button class="btn btn-warning" type="submit">Create</button>
                                             </div>
@@ -84,22 +94,24 @@
                                         <div>
                                             <form action="/admin/dashboard?id={{i.id}}&action=edit" method="POST">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" name="cat_change_name" id="floatingInput">
+                                                    <input type="text" class="form-control" name="cat_change_name"
+                                                        id="floatingInput">
                                                     <label for="floatingInput">Change Category name</label>
                                                 </div>
                                                 <div class="form-floating">
-                                                    <input type="number" class="form-control" name = "cat_change_price" id="floatingPassword">
+                                                    <input type="number" class="form-control" name="cat_change_price"
+                                                        id="floatingPassword">
                                                     <label for="floatingPassword">Base Price</label>
                                                 </div>
                                                 <div class="mt-3 text-center">
                                                     <button class="btn btn-warning">
                                                         Edit
-                                                    </button>   
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -131,7 +143,6 @@
                         data-bs-target="#pills-Flagged" type="button" role="tab" aria-controls="pills-contact"
                         aria-selected="false">Flagged</button>
                 </li>
-
             </ul>
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-Active" role="tabpanel"
@@ -157,8 +168,65 @@
                                 <td>{{i.phone}}</td>
                                 <td>{{i.email}}</td>
                                 <td>
-                                    <button class="btn btn-primary"><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-danger"><i class="bi bi-flag"></i></button>
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Pdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                                    <div class="modal fade" id="Pdetail-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">{{i.name}}'s
+                                                        Deatils
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card p-5">
+                                                        <p>Name: {{i.name}}</p>
+                                                        <p>Category: {{i.category.name}}</p>
+                                                        <p>Experience: {{i.experience}}</p>
+                                                        <p>Address: {{i.address}} </p>
+                                                        <p>Phone: {{i.phone}}</p>
+                                                        <p>Email:{{i.email}} </p>
+                                                        <p>Total Bookings: {{i.assigned_booking}}</p>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Flag-{{i.id}}">Flag</button>
+                                    <div class="modal fade" id="Flag-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Flag
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to Flag?</p>
+                                                    <div>
+                                                        <form
+                                                            action="/admin/dashboard?action=flag&id={{i.id}}&utype=professional"
+                                                            method="POST">
+                                                            <div class="mt-3 text-center">
+                                                                <button class="btn btn-warning"
+                                                                    type="submit">Flag</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -193,8 +261,93 @@
                                 <td>{{i.phone}}</td>
                                 <td>{{i.email}}</td>
                                 <td>
-                                    <button class="btn btn-primary"><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-success">Accept</button>
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Pdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                                    <div class="modal fade" id="Pdetail-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">{{i.name}}'s
+                                                        Deatils
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card p-5">
+                                                        <p>Name: {{i.name}}</p>
+                                                        <p>Category: {{i.category.name}}</p>
+                                                        <p>Experience: {{i.experience}}</p>
+                                                        <p>Address: {{i.address}} </p>
+                                                        <p>Phone: {{i.phone}}</p>
+                                                        <p>Email:{{i.email}} </p>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Accept-{{i.id}}">Accept</button>
+                                    <div class="modal fade" id="Accept-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Accept
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to Accept?</p>
+                                                    <div>
+                                                        <form action="/admin/dashboard?action=accept&id={{i.id}}"
+                                                            method="POST">
+                                                            <div class="mt-3 text-center">
+                                                                <button class="btn btn-warning"
+                                                                    type="submit">Accept</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Reject-{{i.id}}">Reject</button>
+                                    <div class="modal fade" id="Reject-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Reject
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to Reject?</p>
+                                                    <div>
+                                                        <form action="/admin/dashboard?action=reject&id={{i.id}}"
+                                                            method="POST">
+                                                            <div class="mt-3 text-center">
+                                                                <button class="btn btn-warning"
+                                                                    type="submit">Reject</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </td>
                             </tr>
                             {% endfor %}
@@ -208,6 +361,7 @@
                 </div>
                 <div class="tab-pane fade" id="pills-Flagged" role="tabpanel" aria-labelledby="pills-contact-tab"
                     tabindex="0">
+                    {% if F_p %}
                     <table class="table">
                         <thead>
                             <tr>
@@ -228,14 +382,73 @@
                                 <td>{{i.phone}}</td>
                                 <td>{{i.email}}</td>
                                 <td>
-                                    <button class="btn btn-primary"><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-success"><i class="bi bi-flag "></i></button>
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Pdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                                    <div class="modal fade" id="Pdetail-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">{{i.name}}'s
+                                                        Deatils
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card p-5">
+                                                        <p>Name: {{i.name}}</p>
+                                                        <p>Category: {{i.category.name}}</p>
+                                                        <p>Experience: {{i.experience}}</p>
+                                                        <p>Address: {{i.address}} </p>
+                                                        <p>Phone: {{i.phone}}</p>
+                                                        <p>Email:{{i.email}} </p>
+                                                        <p>Total Bookings: {{i.assigned_booking}}</p>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#UnFlag-{{i.id}}">UnFlag</button>
+                                    <div class="modal fade" id="UnFlag-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Unflag
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to Unflag?</p>
+                                                    <div>
+                                                        <form
+                                                            action="/admin/dashboard?action=unflag&id={{i.id}}&utype=professional"
+                                                            method="POST">
+                                                            <div class="mt-3 text-center">
+                                                                <button class="btn btn-warning"
+                                                                    type="submit">Unflag</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
 
                         </tbody>
                     </table>
+                    {% else %}
+                    <p>No flagged professionals</p>
+                    {% endif %}
 
                 </div>
 
@@ -270,6 +483,7 @@
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-Active-Customer" role="tabpanel"
                     aria-labelledby="pills-home-tab" tabindex="0">
+                    {% if A_c %}
                     <table class="table">
                         <thead>
                             <tr>
@@ -288,19 +502,80 @@
                                 <td>9999999999</td>
                                 <td>Ram@gmail.com</td>
                                 <td>
-                                    <button class="btn btn-primary"><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-danger"><i class="bi bi-flag"></i></button>
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Cdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                                    <div class="modal fade" id="Cdetail-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">{{i.name}}'s
+                                                        Deatils
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card p-5">
+                                                        <p>Name: {{i.name}}</p>
+
+
+                                                        <p>Address: {{i.address}} </p>
+                                                        <p>Phone: {{i.phone}}</p>
+                                                        <p>Email:{{i.email}} </p>
+                                                        <p>Total Bookings: {{i.sent_booking}}</p>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Flagcustomer-{{i.id}}">Flag</button>
+                                    <div class="modal fade" id="Flagcustomer-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Flag
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to Flag?</p>
+                                                    <div>
+                                                        <form
+                                                            action="/admin/dashboard?action=flag&id={{i.id}}&utype=customer"
+                                                            method="POST">
+                                                            <div class="mt-3 text-center">
+                                                                <button class="btn btn-warning"
+                                                                    type="submit">Flag</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
 
                         </tbody>
                     </table>
+                    {% else %}
+                    <p>No active customer</p>
+                    {% endif %}
 
                 </div>
                 <div class="tab-pane fade" id="pills-Flagged-Customer" role="tabpanel"
                     aria-labelledby="pills-profile-tab" tabindex="0">
                     <table class="table">
+                        {% if F_c %}
                         <thead>
                             <tr>
 
@@ -316,16 +591,76 @@
                                 <td>{{i.name}}</td>
 
                                 <td>9999999999</td>
-                                <td>Ram@gmail.com</td>
+                                <td>{{i.email}}</td>
                                 <td>
-                                    <button class="btn btn-primary"><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-danger"><i class="bi bi-flag"></i></button>
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Pdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                                    <div class="modal fade" id="Pdetail-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">{{i.name}}'s
+                                                        Deatils
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card p-5">
+                                                        <p>Name: {{i.name}}</p>
+
+
+                                                        <p>Address: {{i.address}} </p>
+                                                        <p>Phone: {{i.phone}}</p>
+                                                        <p>Email:{{i.email}} </p>
+                                                        <p>Total Bookings: {{i.sent_booking}}</p>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#unFlagcustomer-{{i.id}}">UnFlag</button>
+                                    <div class="modal fade" id="unFlagcustomer-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Flag
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to Unflag?</p>
+                                                    <div>
+                                                        <form
+                                                            action="/admin/dashboard?action=unflag&id={{i.id}}&utype=customer"
+                                                            method="POST">
+                                                            <div class="mt-3 text-center">
+                                                                <button class="btn btn-warning"
+                                                                    type="submit">UnFlag</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
 
                         </tbody>
                     </table>
+                    {% else %}
+                    <p>No active customer</p>
+                    {% endif %}
                 </div>
 
             </div>
