@@ -1,11 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Professional dashboard</h1>
-</body>
-</html>
+{% extends "/professional/base.html" %}
+{% block content %}
+
+<main>
+    
+    <h1>Welcome Professional</h1>
+    <div class="card shadow-lg ms-5 me-5 mt-5">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-9">
+                    <h3 class="">Service Plan</h3>
+                </div>
+                <div class="col-3">
+
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#Creteplan">
+                        Create new Plan
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="Creteplan" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">New Plan</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div>
+                                        <form action="/professional/dashboard?action=create" method="POST">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" name="plan_name"
+                                                    id="floatingInput" required>
+                                                <label for="floatingInput"> Plan name</label>
+                                            </div>
+                                            <div class="form-floating mb-3">
+                                                <input type="number" class="form-control" name="plan_price"
+                                                    id="floatingPassword" required>
+                                                <label for="floatingPassword">Price</label>
+                                            </div>
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" name="plan_desc"
+                                                    id="floatingDesc" required>
+                                                <label for="floatingPassword">Description</label>
+                                            </div>
+
+                                            <div class="mt-3 text-center">
+                                                <button class="btn btn-warning" type="submit">Create</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row gap-2">
+                {% for i in  plans %}
+                <div class="card col-3" style="width: 18rem;">
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{i.name}}</h5>
+                        <p class="card-text">{{i.price}}</p>
+
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#edit-{{i.id}}">
+                            Edit
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="edit-{{i.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Plan</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <form action="/professional/dashboard?id={{i.id}}&action=edit" method="POST">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" name="plan_change_name"
+                                                        id="floatingInput">
+                                                    <label for="floatingInput">Change Plan name</label>
+                                                </div>
+                                                <div class="form-floating">
+                                                    <input type="number" class="form-control" name="plan_change_price"
+                                                        id="floatingPassword">
+                                                    <label for="floatingPassword">Price</label>
+                                                </div>
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control" name="plan_change_desc"
+                                                        id="floatingdesc">
+                                                    <label for="floatingPassword">Description</label>
+                                                </div>
+                                                <div class="mt-3 text-center">
+                                                    <button class="btn btn-warning">
+                                                        Edit
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+
+    
+</main>
+{% endblock %}
