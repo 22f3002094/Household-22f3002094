@@ -2,7 +2,17 @@
 {% block content %}
 
 <main>
-    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+
+    {% for m in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{m}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <h1>Welcome Professional</h1>
     <div class="card shadow-lg ms-5 me-5 mt-5">
         <div class="card-header">
@@ -12,8 +22,7 @@
                 </div>
                 <div class="col-3">
 
-                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                        data-bs-target="#Creteplan">
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#Creteplan">
                         Create new Plan
                     </button>
 
@@ -63,7 +72,7 @@
         <div class="card-body">
 
             <div class="row gap-2">
-                {% for i in  plans %}
+                {% for i in plans %}
                 <div class="card col-3" style="width: 18rem;">
 
                     <div class="card-body">
@@ -88,7 +97,8 @@
                                     </div>
                                     <div class="modal-body">
                                         <div>
-                                            <form action="/professional/dashboard?id={{i.id}}&action=edit" method="POST">
+                                            <form action="/professional/dashboard?id={{i.id}}&action=edit"
+                                                method="POST">
                                                 <div class="form-floating mb-3">
                                                     <input type="text" class="form-control" name="plan_change_name"
                                                         id="floatingInput">
@@ -123,8 +133,382 @@
             </div>
         </div>
     </div>
+    <div class="card ms-5 me-5 mt-5">
+        <div class="card-header">
+            <h3> Today's Booking</h3>
+        </div>
+        <div class="card-body">
+            {% if todays_b %}
+            <table class="table">
+                <thead>
+                    <tr>
+
+                        <th scope="col">Customer Name</th>
+                        <th scope="col">Plan Name</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in todays_b %}
+
+                    <tr>
+                        <td>{{i.customer.name}}</td>
+                        <td>{{i.service_plan.name}}</td>
+                        <td>{{i.customer.address}}</td>
+                        <td>{{i.date}}</td>
+                        <td>{{i.time}}</td>
+                        <td>{{i.customer.email}}</td>
+                        <td>{{i.customer.phone}}</td>
+                        <td>
+                            <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                data-bs-target="#bdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                            <div class="modal fade" id="bdetail-{{i.id}}" tabindex="-1"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Booking Detail
+                                            </h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="card p-5">
+                                                <p>Name: {{i.customer.name}}</p>
+                                                <p>Plan: {{i.service_plan.name}}</p>
+
+                                                <p>Address: {{i.customer.address}} </p>
+                                                <p>Phone: {{i.customer.phone}}</p>
+                                                <p>Email:{{i.customer.email}} </p>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
 
 
-    
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+            {% else %}
+            <p>No Active Bookings for today</p>
+            {% endif %}
+
+
+        </div>
+
+    </div>
+    <div class="card ms-5 me-5 mt-5">
+        <div class="card-header">
+            <h3>Bookings</h3>
+        </div>
+        <div class="card-body">
+            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-Active" type="button" role="tab" aria-controls="pills-home"
+                        aria-selected="true">Accpeted</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-Requested" type="button" role="tab" aria-controls="pills-profile"
+                        aria-selected="false">Requested</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill"
+                        data-bs-target="#pills-Flagged" type="button" role="tab" aria-controls="pills-contact"
+                        aria-selected="false">Other</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-Active" role="tabpanel"
+                    aria-labelledby="pills-home-tab" tabindex="0">
+                    {% if A_b %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+
+                                <th scope="col">Customer Name</th>
+                                <th scope="col">Plan Name</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Phone</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in A_b %}
+
+                            <tr>
+                                <td>{{i.customer.name}}</td>
+                                <td>{{i.service_plan.name}}</td>
+                                <td>{{i.customer.address}}</td>
+                                <td>{{i.date}}</td>
+                                <td>{{i.time}}</td>
+                                <td>{{i.customer.email}}</td>
+                                <td>{{i.customer.phone}}</td>
+                                <td>
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#bdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                                    <div class="modal fade" id="bdetail-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Booking Detail
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card p-5">
+                                                        <p>Name: {{i.customer.name}}</p>
+                                                        <p>Plan: {{i.service_plan.name}}</p>
+
+                                                        <p>Address: {{i.customer.address}} </p>
+                                                        <p>Phone: {{i.customer.phone}}</p>
+                                                        <p>Email:{{i.customer.email}} </p>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No Active Bookings </p>
+                    {% endif %}
+
+                </div>
+                <div class="tab-pane fade" id="pills-Requested" role="tabpanel" aria-labelledby="pills-profile-tab"
+                    tabindex="0">
+                    {% if R_b %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Customer Name</th>
+                                <th scope="col">Plan Name</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Phone</th>
+                                <th scope="col">Action</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in R_b %}
+
+                            <tr>
+                                <td>{{i.customer.name}}</td>
+                                <td>{{i.service_plan.name}}</td>
+                                <td>{{i.customer.address}}</td>
+                                <td>{{i.date}}</td>
+                                <td>{{i.time}}</td>
+                                <td>{{i.customer.email}}</td>
+                                <td>{{i.customer.phone}}</td>
+
+                                <td>
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#bdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                                    <div class="modal fade" id="bdetail-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Booking Detail
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card p-5">
+                                                        <p>Name: {{i.customer.name}}</p>
+                                                        <p>Plan: {{i.service_plan.name}}</p>
+
+                                                        <p>Address: {{i.customer.address}} </p>
+                                                        <p>Phone: {{i.customer.phone}}</p>
+                                                        <p>Email:{{i.customer.email}} </p>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Accept-{{i.id}}">Accept</button>
+                                    <div class="modal fade" id="Accept-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Accept
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to Accept the booking?</p>
+                                                    <div>
+                                                        <form action="/professional/dashboard?action=accept&id={{i.id}}"
+                                                            method="POST">
+                                                            <div class="mt-3 text-center">
+                                                                <button class="btn btn-warning"
+                                                                    type="submit">Accept</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#Reject-{{i.id}}">Reject</button>
+                                    <div class="modal fade" id="Reject-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Reject
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to Reject the booking?</p>
+                                                    <div>
+                                                        <form action="/professional/dashboard?action=reject&id={{i.id}}"
+                                                            method="POST">
+                                                            <div class="mt-3 text-center">
+                                                                <button class="btn btn-warning"
+                                                                    type="submit">Reject</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No Requested Bookings </p>
+                    {% endif %}
+
+                </div>
+                <div class="tab-pane fade" id="pills-Flagged" role="tabpanel" aria-labelledby="pills-contact-tab"
+                    tabindex="0">
+                    {% if O_b %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+
+                                <th scope="col">Customer Name</th>
+                                <th scope="col">Plan Name</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Phone</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in O_b %}
+
+                            <tr>
+                                <td>{{i.customer.name}}</td>
+                                <td>{{i.service_plan.name}}</td>
+                                <td>{{i.customer.address}}</td>
+                                <td>{{i.date}}</td>
+                                <td>{{i.time}}</td>
+                                <td>{{i.customer.email}}</td>
+                                <td>{{i.customer.phone}}</td>
+                                <td>
+                                    <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#bdetail-{{i.id}}"><i class="bi bi-eye"></i></button>
+
+                                    <div class="modal fade" id="bdetail-{{i.id}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Booking Detail
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="card p-5">
+                                                        <p>Name: {{i.customer.name}}</p>
+                                                        <p>Plan: {{i.service_plan.name}}</p>
+
+                                                        <p>Address: {{i.customer.address}} </p>
+                                                        <p>Phone: {{i.customer.phone}}</p>
+                                                        <p>Email:{{i.customer.email}} </p>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No Other bookings</p>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+
+
+
+
+        </div>
+
+    </div>
+
+
 </main>
 {% endblock %}

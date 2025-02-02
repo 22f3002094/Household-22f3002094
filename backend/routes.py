@@ -1,8 +1,9 @@
 from flask import current_app as app
 from flask_login import login_user,current_user,login_required,logout_user
 from flask import render_template,request,redirect,flash
+from datetime import datetime
 
-from backend.models import db,User,Professional,ServiceCategory,Admin,ServicePlan
+from backend.models import db,User,Professional,ServiceCategory,Admin,ServicePlan,Booking
 
 @app.route("/",methods=["GET","POST"])
 def index():
@@ -199,7 +200,23 @@ def pro_dash():
 
         if request.method=="GET":
             plans = db.session.query(ServicePlan).filter_by(professional_id=current_user.id).all()
-            return render_template("/professional/dashboard.html", cu=current_user,plans= plans)
+            all_bookings = current_user.assigned_booking
+            A_b = []
+            R_b = []
+            O_b = []
+            
+            
+            todays_b = []
+            for booking in all_bookings:
+                if booking.status=="Accepted" and booking.date == datetime.now().strftime("%d-%m-%Y") :
+                    todays_b.append(booking)
+                elif booking.status=="Accepted":
+                    A_b.append(booking)
+                elif booking.status == "Requested":
+                    R_b.append(booking)
+                else:
+                    O_b.append(booking)
+            return render_template("/professional/dashboard.html", cu=current_user,plans= plans,A_b = A_b, R_b = R_b ,O_b = O_b,todays_b = todays_b )
         elif request.method=="POST":
             if request.args.get("action")=="create":
                 plan_name= request.form.get("plan_name")
@@ -231,6 +248,20 @@ def pro_dash():
                 db.session.commit()
 
                 return redirect("/professional/dashboard") 
+            elif request.args.get("action") == "accept":
+                id = request.args.get("id")
+                booking = db.session.query(Booking).filter_by(id = id).first()
+                booking.status = "Accepted"
+                db.session.commit()
+                flash(f"{booking.customer.name}'s request is Accepted")
+                return redirect("/professional/dashboard")
+            elif request.args.get("action") == "reject":
+                id = request.args.get("id")
+                booking = db.session.query(Booking).filter_by(id = id).first()
+                booking.status = "Rejected"
+                db.session.commit()
+                flash(f"{booking.customer.name}'s request is Rejected")
+                return redirect("/professional/dashboard")
 
 
     else:
