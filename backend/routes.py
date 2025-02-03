@@ -208,7 +208,7 @@ def pro_dash():
             
             todays_b = []
             for booking in all_bookings:
-                if booking.status=="Accepted" and booking.date == datetime.now().strftime("%d-%m-%Y") :
+                if not booking.status=="Requested" and not booking.status=="Closed" and booking.date == datetime.now().strftime("%d-%m-%Y") :
                     todays_b.append(booking)
                 elif booking.status=="Accepted":
                     A_b.append(booking)
@@ -263,10 +263,35 @@ def pro_dash():
                 flash(f"{booking.customer.name}'s request is Rejected")
                 return redirect("/professional/dashboard")
 
-
+            elif request.args.get("action") == "start":
+                id = request.args.get("id")
+                booking = db.session.query(Booking).filter_by(id = id).first()
+                booking.status = "inprogress"
+                db.session.commit()
+                flash(f"{booking.customer.name}'s request is Started")
+                return redirect("/professional/dashboard")
+            elif request.args.get("action") == "done":
+                id = request.args.get("id")
+                booking = db.session.query(Booking).filter_by(id = id).first()
+                booking.status = "Done"
+                db.session.commit()
+                flash(f"{booking.customer.name}'s request is Done")
+                return redirect("/professional/dashboard")
     else:
         return "Not Authrised"
-  
+
+
+
+
+@app.route("/takeinput", methods=["GET","POST"]) 
+def take_input():
+    if request.method =="GET":
+        return render_template("takeinput.html" , duration = 1)
+    else:
+        email = request.form.get("user_email")
+        password = request.form.get("user_password")
+        print(email,password)
+        return redirect("/login")
 
 @app.route("/logout",methods=["GET"])
 @login_required
