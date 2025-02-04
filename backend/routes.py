@@ -12,16 +12,19 @@ def index():
 
 
 @app.route("/register/customer" , methods=["GET","POST"])
-def pro_register():
+def cust_register():
     if request.method =="GET":
         return render_template("/customer/register.html")
     elif request.method =="POST":
         Email = request.form.get("cust_email")
-        pwd=request.form.get("cust_password")
+        pwd=request.form.get("cust_pwd")
         Name=request.form.get("cust_name")
+        phone = request.form.get("cust_phone")
+        address = request.form.get("cust_add")
+        city = request.form.get("cust_city")
         cust1 = db.session.query(User).filter_by(email=Email).first()
         if not cust1:
-            cust = User(name=Name,email = Email,password=pwd)
+            cust = User(name=Name,email = Email,password=pwd,phone= phone,address=address,city = city,status="Active")
             db.session.add(cust)
             db.session.commit()
             return redirect("/login")
@@ -29,7 +32,7 @@ def pro_register():
             return redirect("/login")
         
 @app.route("/register/professional" , methods=["GET","POST"])
-def Cust_register():
+def pro_register():
     if request.method =="GET":
         ser_cat = db.session.query(ServiceCategory).all()
 
@@ -92,9 +95,58 @@ def login():
 @app.route("/customer/dashboard", methods=["GET","POST"])
 @login_required
 def cust_dash():
-    if request.method=="GET":
-        
-        return render_template("/customer/dashboard.html",u=current_user)
+    if isinstance(current_user, User):
+        if request.method=="GET":
+            cat= db.session.query(ServiceCategory).all()
+            all_bookings=db.session.query(Booking).filter_by(customer_id=current_user.id).all()
+            A_b=[]
+            R_b =[]
+            O_b = []
+            for booking in all_bookings:
+                    if booking.status=="Accepted" or booking.status=="inprogress" or booking.status=="Done":
+                        A_b.append(booking)
+                    elif booking.status == "Requested":
+                        R_b.append(booking)
+                    else:
+                        O_b.append(booking)
+            print(O_b)
+            return render_template("/customer/dashboard.html",u=current_user,cats=cat,A_b=A_b,R_b = R_b,O_b = O_b)
+        elif request.method=="POST":
+            if request.args.get("action")=="close":
+                id = request.args.get("id")
+                rating= request.form.get("rating")
+                remark = request.form.get("remark")
+
+                booking= db.session.query(Booking).filter_by(id = id).first()
+                if remark:
+                    booking.remark=remark
+                booking.rating= rating
+                booking.status="Closed"
+                db.session.commit()
+                return redirect("/customer/dashboard")
+            elif request.args.get("action")=="edit":
+                id = request.args.get("id")
+                date= request.form.get("new_date")
+                time = request.form.get("new_time")
+
+                booking= db.session.query(Booking).filter_by(id = id).first()
+                if date:
+                    booking.date=date
+                if time:
+                    booking.time=time
+
+                db.session.commit()
+                return redirect("/customer/dashboard")
+            elif request.args.get("action")=="cancel":
+                id =request.args.get("id")
+                booking= db.session.query(Booking).filter_by(id = id).first()
+                booking.status="Cancelled"
+                db.session.commit()
+                return redirect("/customer/dashboard")
+
+    else:
+        return "unauth"
+    
     
 @app.route("/admin/dashboard", methods=["GET","POST"])
 @login_required
@@ -208,7 +260,7 @@ def pro_dash():
             
             todays_b = []
             for booking in all_bookings:
-                if not booking.status=="Requested" and not booking.status=="Closed" and booking.date == datetime.now().strftime("%d-%m-%Y") :
+                if not booking.status=="Requested" and not booking.status=="Closed" and booking.date == datetime.now().strftime("%Y-%m-%d") :
                     todays_b.append(booking)
                 elif booking.status=="Accepted":
                     A_b.append(booking)
