@@ -2,7 +2,8 @@ from flask import current_app as app
 from flask_login import login_user,current_user,login_required,logout_user
 from flask import render_template,request,redirect,flash
 from datetime import datetime
-
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_ , or_
 from backend.models import db,User,Professional,ServiceCategory,Admin,ServicePlan,Booking
 
 @app.route("/",methods=["GET","POST"])
@@ -148,6 +149,55 @@ def cust_dash():
         return "unauth"
     
     
+@app.route("/customer/search",methods=["GET","POST"])
+def cust_search():
+    if isinstance(current_user,User):
+        if request.method=="GET":
+            all_cat = db.session.query(ServiceCategory).all()
+            return render_template("/customer/search.html",all_cat =all_cat , met ="get", cu=current_user)
+        if request.method=="POST":
+            catid = request.form.get("cat")
+            plan = request.form.get("plan") 
+            
+            mat_plan=db.session.query(ServicePlan).filter(
+                and_(
+                    or_(
+                    ServicePlan.name.ilike(f"%{plan}%"),
+                    ServicePlan.description.ilike(f"%{plan}%")
+                    )
+                    ,
+                     ServicePlan.category_id==catid)
+                    
+                     ).all()
+            matched_plans=[]
+            for i in mat_plan:
+                if i.professional.city==current_user.city:
+                    matched_plans.append(i)
+    
+
+            all_cat = db.session.query(ServiceCategory).all()
+            return render_template("/customer/search.html" , matched_plans=matched_plans,met="post",all_cat=all_cat,cu=current_user)
+
+    else:
+        return "not authourised"
+
+@app.route("/booking",methods=["GET","POST"])
+def booking():
+    if isinstance(current_user,User):
+        if request.method=="POST":
+            date= request.form.get("booking_date")
+            time=request.form.get("booking_time")
+            plan_id = request.args.get("plan_id")
+            pro_id = request.args.get("pro_id")
+            cat_id = request.args.get("cat_id")
+            book = Booking(date=date,time=time, status="Requested", service_plan_id=plan_id,professional_id=pro_id,customer_id=current_user.id,address=current_user.address,category_id=cat_id)
+            db.session.add(book)
+            db.session.commit()
+            return redirect("customer/dashboard")
+    else:
+        return "not auth"
+
+
 @app.route("/admin/dashboard", methods=["GET","POST"])
 @login_required
 def admin_dash():

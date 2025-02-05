@@ -44,7 +44,7 @@
                         <thead>
                             <tr>
 
-                                <th scope="col">Customer Name</th>
+                                <th scope="col">Professional Name</th>
                                 <th scope="col">Plan Name</th>
                                 <th scope="col">Address</th>
                                 <th scope="col">Date</th>
@@ -58,13 +58,13 @@
                             {% for i in A_b %}
 
                             <tr>
-                                <td>{{i.customer.name}}</td>
+                                <td>{{i.professional.name}}</td>
                                 <td>{{i.service_plan.name}}</td>
                                 <td>{{i.customer.address}}</td>
                                 <td>{{i.date}}</td>
                                 <td>{{i.time}}</td>
-                                <td>{{i.customer.email}}</td>
-                                <td>{{i.customer.phone}}</td>
+                                <td>{{i.professional.email}}</td>
+                                <td>{{i.professional.phone}}</td>
                                 <td>
                                     <button class="btn btn-primary" type="button" data-bs-toggle="modal"
                                         data-bs-target="#bdetail-{{i.id}}"><i class="bi bi-eye"></i></button>

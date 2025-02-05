@@ -1,0 +1,91 @@
+{% extends "/customer/base.html" %}
+{% block content %}
+<main>
+    <p class="mt-2">Welcome CUstomer</p>
+    <p>{{cu.name}}</p>
+    <div class="card m-5 p-3">
+        <form action="/customer/search" method="POST">
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <select name="cat" class="form-control">
+                            <option>Select a category </option>
+                            {% for i in all_cat %}
+                            <option value="{{i.id}}">{{i.name}}</option>
+                            {% endfor %}
+
+                        </select>
+                        <label for="floatingInput">Category</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingPlan" name="plan"
+                            placeholder="Seach for a Plan">
+                        <label for="floatingPlan">plan</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-warning">Submit</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    {% if met!="get"%}
+    <div class="card shadow-lg m-5 px-5 pt-2 pb-2">
+        <div class="row gap-2">
+            {% for i in matched_plans %}
+            <div class="col-3 card mt-2" style="width: auto;">
+                <p><b>PlanName</b>: {{i.name}}</p>
+                <p><b>Price</b>: {{i.price}}</p>
+                <p><b>Descripion</b>: {{i.description}}</p>
+                <p><b>Professional</b>: {{i.professional.name}}</p>
+                <p><b>Phone</b>: {{i.professional.phone}}</p>
+               <div class="text-center mb-3">
+                <button class="btn btn-warning" type="button" data-bs-toggle="modal"
+                    data-bs-target="#book-{{i.id}}">Book</button>
+                </div>
+                <div class="modal fade" id="book-{{i.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Book Plan
+                                </h1>
+                                <button type="button" class="btn-close " data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="card p-5">
+                                    <p class="mb-3">{{i.name}}</p>
+                                    <form action="/booking?plan_id={{i.id}}&pro_id={{i.professional_id}}&cat_id={{i.category_id}}" method="POST">
+
+                                        <div class="form-floating mb-3">
+                                            <input type="date" class="form-control" id="floatingInput" name="booking_date" required placeholder="name@example.com">
+                                            <label for="floatingInput">Date</label>
+                                        </div>
+                                        <div class="form-floating">
+                                            <input type="time" class="form-control" id="floatingPassword" name="booking_time" required placeholder="Password">
+                                            <label for="floatingPassword">Time</label>
+                                        </div>
+                                    
+                                        <button type="submit" class="btn btn-warning" >Submit</button>    
+                                      </form>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+    {% endif %}
+</main>
+
+{% endblock %}
