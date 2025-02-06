@@ -7,7 +7,7 @@
             {% for i in cats %}
             <div class="col-3 card p-3" style="width: auto;">
                 <b>{{i.name}}</b>
-                <button class="btn btn-warning mt-2">Explore</button>
+                <button class="btn btn-warning mt-2"><a href="/customer/search?cat_id={{i.id}}">Explore</a></button>
                 
             </div>
             {% endfor %}

@@ -1,5 +1,84 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-<p>this is a search page for admin</p>
+<main>
+    <p class="mt-2">Welcome Admin</p>
+    <p>{{cu.name}}</p>
+    <div class="card m-5 p-3">
+        <form action="/admin/search" method="POST">
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="username" id="exampleRadios1" value="customer" checked>
+                        <label class="form-check-label" for="exampleRadios1">
+                         Customer
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="username" id="exampleRadios2" value="professional">
+                        <label class="form-check-label" for="exampleRadios2">
+                          Professional
+                        </label>
+                      </div>
+                    
+                </div>
+                <div class="col">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="floatingname" name="name"
+                            placeholder="Seach for a Plan">
+                        <label for="floatingPlan">Name</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-warning">Submit</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    {% if met!="get" %}
+    
+    <div class="card m-5">
+        <div class="card-body">
+            {% if users %}
+            <table class="table">
+                {% if usertype=="customer" %}
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+                {% else %}
+                <tr>
+                    <th>Professional Name</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+                {% endif %}
+                {% for i in users %}
+                    <tr>
+                        <td>{{i.name}}</td>
+                        <td>{{i.address}}</td>
+                        <td>{{i.phone}}</td>
+                        <td>{{i.email}}</td>
+                        <td>
+                            
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <div class="text-center">
+                <p>No record is found</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</main>
 {% endblock%}

@@ -152,9 +152,19 @@ def cust_dash():
 @app.route("/customer/search",methods=["GET","POST"])
 def cust_search():
     if isinstance(current_user,User):
-        if request.method=="GET":
+        if request.method=="GET" and request.args.get("cat_id")==None:
             all_cat = db.session.query(ServiceCategory).all()
             return render_template("/customer/search.html",all_cat =all_cat , met ="get", cu=current_user)
+        if request.method=="GET" and request.args.get("cat_id"):
+            cat_id = request.args.get("cat_id")
+            mat_plan=db.session.query(ServicePlan).filter_by(category_id =cat_id).all()
+            matched_plans=[]
+            for i in mat_plan:
+                if i.professional.city==current_user.city:
+                    matched_plans.append(i)
+            all_cat = db.session.query(ServiceCategory).all()
+            return render_template("/customer/search.html",all_cat =all_cat ,matched_plans=matched_plans, met ="post", cu=current_user)
+
         if request.method=="POST":
             catid = request.form.get("cat")
             plan = request.form.get("plan") 
@@ -291,7 +301,21 @@ def admin_dash():
 def admin_search():
     if isinstance(current_user,Admin):
         if request.method=="GET":
-            return render_template("admin/search.html",page="search" )
+            return render_template("admin/search.html",page="search",met="get", cu=current_user )
+        elif request.method=="POST":
+            usertype = request.form.get("username")
+            name=request.form.get("name")
+            if usertype=="customer":
+                users=db.session.query(User).filter(
+                    User.name.ilike(f"%{name}%")
+                ).all()
+            elif usertype=="professional":
+                users=db.session.query(Professional).filter(
+                    Professional.name.ilike(f"%{name}%")
+                ).all()
+            
+            # return f"{len(users)}"
+            return render_template("admin/search.html" ,met="post" , users=users,usertype=usertype , cu=current_user)
     else:
         return "not authorised"
 
