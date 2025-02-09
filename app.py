@@ -2,7 +2,7 @@ from flask import Flask
 from flask_login import LoginManager
 from backend.models import db,User,ServiceCategory,Booking
 import os
-
+from backend.api import api
 app = None
 
 def initial_Setup():
@@ -18,6 +18,7 @@ def initial_Setup():
 
 
     db.init_app(app)
+    api.init_app(app)
     with app.app_context():
         if not os.path.exists("my_app_db.sqlite3"):
             db.create_all()

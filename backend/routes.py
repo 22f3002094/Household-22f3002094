@@ -5,6 +5,12 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_ , or_
 from backend.models import db,User,Professional,ServiceCategory,Admin,ServicePlan,Booking
+import matplotlib.pyplot as plt
+import matplotlib
+import requests
+matplotlib.use("agg")
+import requests
+
 
 @app.route("/",methods=["GET","POST"])
 def index():
@@ -225,14 +231,13 @@ def admin_dash():
                 cat_name= request.form.get("cat_name")
                 cat_price=request.form.get("cat_price")
                 # cat_desc=request.form.get("cat_desc")
-                check_cat =db.session.query(ServiceCategory).filter_by(name =cat_name).first()
-                if not check_cat:
-                    cat = ServiceCategory(name=cat_name,base_price=cat_price)
-                    db.session.add(cat)
-                    db.session.commit()
+                
+                response = requests.post("http://127.0.0.1:5000/api/servicecategory", json= {"cat_n": cat_name , "cat_p":cat_price})
+                if response.status_code ==200:
+                    flash(response.json()["message"])
                     return redirect("/admin/dashboard")
-                else:
-                    flash("a catefory with the same name is present") 
+                elif response.status_code == 201:
+                    flash(response.json()["message"]) 
                     return redirect("/admin/dashboard")
             
             elif request.args.get("action")=="edit": 
@@ -240,13 +245,8 @@ def admin_dash():
                 id= request.args.get("id")
                 cat_change_name =request.form.get("cat_change_name")
                 cat_change_price=request.form.get("cat_change_price")
-                cat= db.session.query(ServiceCategory).filter_by(id = id).first()
-                if cat_change_name:
-                    cat.name = cat_change_name
-                elif cat_change_price:
-                    cat.base_price = cat_change_price
-                db.session.commit()
-
+                response = requests.put(f"http://127.0.0.1:5000/api/servicecategory/{id}", json= {"cat_c_n": cat_change_name , "cat_c_p":cat_change_price})
+                flash(response.json()["message"])
                 return redirect("/admin/dashboard") 
             elif request.args.get("action") == "reject":
                 id = request.args.get("id")
@@ -292,6 +292,14 @@ def admin_dash():
                     db.session.commit()
                     flash(f"{cust.name}'s is Unflagged")
                     return redirect("/admin/dashboard")
+            
+            elif request.args.get("action") == "delete":
+                id = request.args.get("id")
+                cat = db.session.query(ServiceCategory).filter_by(id= id).first()
+                db.session.delete(cat)
+                db.session.commit()
+                return redirect("/admin/dashboard")
+
     else:
         return "not authorised"
 
@@ -318,6 +326,33 @@ def admin_search():
             return render_template("admin/search.html" ,met="post" , users=users,usertype=usertype , cu=current_user)
     else:
         return "not authorised"
+    
+
+@app.route("/admin/stats" , methods=["GET","POST"])
+def adm_stats():
+    if isinstance(current_user,Admin):
+        if request.method=="GET":
+            allcat= db.session.query(ServiceCategory).all()
+
+            cat_labels = []
+            cat_booking = [ ]
+            for i in allcat:
+                cat_labels.append(i.name)
+                count = 0
+                for i in i.professionals:
+                    count = count + len(i.assigned_booking)
+                cat_booking.append(count)
+
+            plt.bar(cat_labels,cat_booking)
+            plt.xlabel("Category")
+            plt.ylabel("Bookings")
+            plt.title("Category wise booking")
+            plt.savefig("./static/admin/cat_booking.png")
+            plt.close()
+            plt.clf()
+            
+            return render_template("/admin/stats.html", cu=current_user)
+
 
 @app.route("/professional/dashboard", methods=["GET","POST"])
 @login_required
