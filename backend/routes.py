@@ -232,7 +232,7 @@ def admin_dash():
                 cat_price=request.form.get("cat_price")
                 # cat_desc=request.form.get("cat_desc")
                 
-                response = requests.post("http://127.0.0.1:5000/api/servicecategory", json= {"cat_n": cat_name , "cat_p":cat_price})
+                response = requests.post("http://127.0.0.1:5000/api/servicecategoryg", json= {"cat_n": cat_name , "cat_p":cat_price})
                 if response.status_code ==200:
                     flash(response.json()["message"])
                     return redirect("/admin/dashboard")
